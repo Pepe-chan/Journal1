@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Journal</string>
+    <string name="icon">icon</string>
+    <string name="hint_subject">Педагогика</string>
+    <string name="hint_teacher">Краман Медет</string>
+    <string name="hint_course_type">Семинар</string>
+    <string name="hint_date">01.02</string>
+    <string name="hint_mark">5</string>
+    <string name="avatar">avatar</string>
+    <string name="hint_lastname">Kraman</string>
+    <string name="hint_firstname">Medet</string>
+    <string name="hint_fathername" />
+</resources>
