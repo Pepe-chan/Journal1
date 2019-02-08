@@ -2,6 +2,7 @@ package com.coding.journal;
 
 import android.graphics.Point;
 import android.hardware.display.DisplayManager;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ public class JournalActivity extends AppCompatActivity {
     RecyclerView rvMarks;
     MarkAdapter markAdapter;
 
+    ShowMarksTask task;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,11 +39,25 @@ public class JournalActivity extends AppCompatActivity {
         rvMarks = findViewById(R.id.rv_marks);
         rvMarks.setLayoutManager(new GridLayoutManager(this, columnCount));
         ArrayList<Mark> marks = Mark.getTestingDatas();
-        markAdapter = new MarkAdapter(marks);
+        markAdapter = new MarkAdapter(new ArrayList<Mark>());
         rvMarks.setAdapter(markAdapter);
 
+        if(task == null) {
+            task = new ShowMarksTask(marks);
+            task.execute();
+        }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (task != null) {
+            if (task.isCancelled() == false){
+                task.cancel(true);
+            }
+        }
+    }
 
     public class MarkAdapter extends RecyclerView.Adapter<MarkAdapter.MarkHolder> {
 
@@ -70,6 +87,8 @@ public class JournalActivity extends AppCompatActivity {
             return marks.size();
         }
 
+        public void add(Mark mark) { marks.add(mark);}
+
         public class MarkHolder extends RecyclerView.ViewHolder {
 
             public MarkHolder(@NonNull View itemView) {
@@ -83,6 +102,41 @@ public class JournalActivity extends AppCompatActivity {
             public View view;
             public TextView txtDate;
             public TextView txtMark;
+        }
+    }
+    public class ShowMarksTask extends AsyncTask<Void, Mark, Void> {
+
+        ArrayList<Mark> marks;
+
+        public ShowMarksTask(ArrayList<Mark> marks) {
+            this.marks = marks;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            for (Mark mark: marks) {
+                publishProgress(mark);
+                try {
+                    Thread.sleep(1000 * 1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Mark... values) {
+            super.onProgressUpdate(values);
+
+            markAdapter.add(values[0]);
+            markAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            task = null;
         }
     }
 }
